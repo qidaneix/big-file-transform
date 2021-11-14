@@ -39,17 +39,31 @@ function App() {
             ref={inputEl}
             type="file"
             onChange={() => {
+              // useRef 获取文件
               const [file] = inputEl.current.files;
+
+              console.log(file);
+
+              // 读取文件
               const fileReader = new FileReader();
+
               fileReader.onload = ({ target: { result: buffer } }) => {
-                const view = new Uint8Array(buffer);
+                // 数据
                 const list = [];
+                // 定型数组接口
+                const view = new Uint8Array(buffer);
                 let j = 0;
                 for (let i = 0; i < view.length; i += 1024) {
                   const formData = new FormData();
                   formData.append(j, view.slice(i, i + 1024));
-                  j += 1;
+
+                  // 获取文件名
+                  if (j === 0) formData.append("name", file.name);
+
+                  if (i + 1024 > view.length) formData.append("amount", j + 1);
+
                   list.push(formData);
+                  j += 1;
                 }
                 const pA = Promise.all(
                   list.map((formData) => postChunk(formData))
